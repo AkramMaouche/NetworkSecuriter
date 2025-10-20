@@ -1,15 +1,57 @@
+import os 
+import pymongo  
+import sys 
+import json 
+import certifi 
+import pandas as pd 
+import numpy as np 
+from networksecuritty.exception.exception import NetworkSecurityException
+from networksecuritty.logging.logger import logging
 
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
+from dotenv import load_dotenv 
+load_dotenv()
 
-uri = "mongodb+srv://akrammaouche07_db_user:Admin01@cluster0.xvbg7od.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+#load MongoDb APi
+MONGO_DB_URL = os.getenv('MONGO_DB_URL') 
+print(MONGO_DB_URL) 
 
-# Create a new client and connect to the server
-client = MongoClient(uri, server_api=ServerApi('1'))
+###Certification 
+ca = certifi.where() 
 
-# Send a ping to confirm a successful connection
-try:
-    client.admin.command('ping')
-    print("Pinged your deployment. You successfully connected to MongoDB!")
-except Exception as e:
-    print(e)
+class NetworkDataExtract(): 
+    def __init__(self): 
+        try:
+            pass 
+        except Exception as e : 
+            raise NetworkSecurityException(e,sys)
+    
+    ### transform csv table to json file
+
+    def csv_to_json_convertor(self, file_path): 
+        try : 
+            data = pd.read_csv(file_path)
+            data.reindex(drop = True, inplase = True) 
+            records = list(json.loads(data.T.to_json()).values())
+            return records
+
+        except Exception as e: 
+            raise NetworkSecurityException(e,sys)
+    
+    ### uploading it to Mongo Db 
+    def insert_data_mongodb(self,records,database,collection) : 
+        try: 
+            self.database = database 
+            self.collection = collection 
+            self.records = records 
+
+            self.mongo_client = pymongo.MongoClient(MONGO_DB_URL)
+            self.database  = self.mongo_client[self.database]
+
+            self.collection = self.database[]
+
+
+
+
+        except Exception as e : 
+            raise NetworkSecurityException(e,sys)
+
